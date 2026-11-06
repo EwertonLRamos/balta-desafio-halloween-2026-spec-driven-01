@@ -1,6 +1,8 @@
 using HalloweenPasswords.Api.Application.Abstractions;
 using HalloweenPasswords.Api.Application.Services;
+using HalloweenPasswords.Api.Http;
 using HalloweenPasswords.Api.Persistence;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +17,29 @@ builder.Services.AddScoped<IPasswordService, PasswordService>();
 
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello World!");
+app.UseExceptionHandler(exceptionHandler =>
+{
+    exceptionHandler.Run(async context =>
+    {
+        var logger = context.RequestServices.GetRequiredService<ILoggerFactory>()
+            .CreateLogger("UnhandledException");
+        logger.LogError(
+            context.Features.Get<IExceptionHandlerFeature>()?.Error,
+            "An unexpected error occurred while processing the request.");
+
+        context.Response.Clear();
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        await Results.Problem(
+            statusCode: StatusCodes.Status500InternalServerError,
+            title: "An unexpected error occurred.")
+            .ExecuteAsync(context);
+    });
+});
+
+app.MapPasswordEndpoints();
 
 app.Run();
+
+public partial class Program
+{
+}
