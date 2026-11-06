@@ -20,7 +20,7 @@ public class PasswordEndpointsTests
     {
         using var factory = new PasswordApiFactory();
         using var client = factory.CreateClient();
-        await factory.InitializeDatabaseAsync();
+        await factory.AssertMigrationAppliedAsync();
 
         var generateResponse = await client.PostAsync("/api/passwords", content: null);
 
@@ -58,7 +58,7 @@ public class PasswordEndpointsTests
     {
         using var factory = new PasswordApiFactory();
         using var client = factory.CreateClient();
-        await factory.InitializeDatabaseAsync();
+        await factory.AssertMigrationAppliedAsync();
 
         var response = await client.GetAsync("/api/passwords/not-a-guid");
 
@@ -74,7 +74,7 @@ public class PasswordEndpointsTests
     {
         using var factory = new PasswordApiFactory();
         using var client = factory.CreateClient();
-        await factory.InitializeDatabaseAsync();
+        await factory.AssertMigrationAppliedAsync();
 
         var response = await client.GetAsync($"/api/passwords/{Guid.NewGuid():D}");
 
@@ -87,7 +87,7 @@ public class PasswordEndpointsTests
     {
         using var factory = new PasswordApiFactory(failWrites: true);
         using var client = factory.CreateClient();
-        await factory.InitializeDatabaseAsync();
+        await factory.AssertMigrationAppliedAsync();
 
         var response = await client.PostAsync("/api/passwords", content: null);
 
@@ -122,11 +122,13 @@ public class PasswordEndpointsTests
             });
         }
 
-        public async Task InitializeDatabaseAsync()
+        public async Task AssertMigrationAppliedAsync()
         {
             using var scope = Services.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<PasswordsDbContext>();
-            await dbContext.Database.EnsureCreatedAsync();
+            var appliedMigrations = await dbContext.Database.GetAppliedMigrationsAsync();
+
+            Assert.Contains("20261106190432_InitialCreate", appliedMigrations);
         }
 
         protected override void Dispose(bool disposing)

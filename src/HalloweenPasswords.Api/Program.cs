@@ -38,6 +38,12 @@ app.UseExceptionHandler(exceptionHandler =>
 
 app.MapPasswordEndpoints();
 
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<PasswordsDbContext>();
+    await dbContext.Database.MigrateAsync();
+}
+
 app.Run();
 
 public partial class Program
