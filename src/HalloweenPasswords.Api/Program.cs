@@ -1,3 +1,4 @@
+using HalloweenPasswords.Api.Application.Abstractions;
 using HalloweenPasswords.Api.Application.Services;
 using HalloweenPasswords.Api.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ var connectionString = builder.Configuration.GetConnectionString("Passwords")
 
 builder.Services.AddDbContext<PasswordsDbContext>(options =>
     options.UseSqlite(connectionString));
+builder.Services.AddScoped<IPasswordRepository, EfPasswordRepository>();
 builder.Services.AddSingleton<IPasswordGenerator, PasswordGenerator>();
 
 var app = builder.Build();
