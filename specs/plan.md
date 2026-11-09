@@ -17,6 +17,7 @@ Manter a aplicação em um projeto de API e um projeto de testes, com separaçã
 
 ## Decisões
 - **.NET 10, C# e Minimal API:** adotados conforme a stack recomendada no desafio; atendem à API pequena de duas operações sem adicionar uma camada de framework de controladores.
+- **`.gitignore`:** criar um arquivo `.gitignore` na raiz do repositório para excluir artefatos locais de build e testes do .NET (`bin/`, `obj/`, resultados de teste), arquivos específicos de IDE e o banco SQLite local (`passwords.db` e arquivos auxiliares). Manter no controle de versão o código-fonte, as migrações e os arquivos de configuração de exemplo necessários ao projeto.
 - **Swagger/OpenAPI:** usar `Swashbuckle.AspNetCore` para gerar o documento OpenAPI e disponibilizar a interface Swagger UI somente no ambiente Development, facilitando a exploração local sem expor a interface de documentação por padrão em outros ambientes.
 - **SQLite com EF Core:** SQLite persiste as senhas entre execuções sem exigir um servidor externo, e EF Core fornece o mapeamento e as operações de dados. A connection string será lida de `ConnectionStrings:Passwords`, com `Data Source=passwords.db` como padrão local; configurações externas, inclusive variáveis de ambiente, podem substituir esse valor.
 - **xUnit:** adotado conforme a recomendação do desafio para testes unitários e de integração.
