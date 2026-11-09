@@ -11,11 +11,19 @@ var connectionString = builder.Configuration.GetConnectionString("Passwords")
 
 builder.Services.AddDbContext<PasswordsDbContext>(options =>
     options.UseSqlite(connectionString));
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IPasswordRepository, EfPasswordRepository>();
 builder.Services.AddSingleton<IPasswordGenerator, PasswordGenerator>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseExceptionHandler(exceptionHandler =>
 {
